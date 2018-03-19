@@ -95,10 +95,14 @@ def normal_init(m, mean, std):
         m.bias.data.zero_()
 
 fixed_z_ = torch.randn((5 * 5, 100)).view(-1, 100, 1, 1)    # fixed noise
-fixed_z_ = Variable(fixed_z_.cuda(), volatile=True)
+if torch.cuda.is_available():
+    fixed_z_.cuda()
+fixed_z_ = Variable(fixed_z_)
 def show_result(num_epoch, show = False, save = False, path = 'result.png', isFix=False):
     z_ = torch.randn((5*5, 100)).view(-1, 100, 1, 1)
-    z_ = Variable(z_.cuda(), volatile=True)
+    if torch.cuda.is_available():
+        z_.cuda()
+    z_ = Variable(z_, volatile=True)
 
     G.eval()
     if isFix:
@@ -216,13 +220,6 @@ def main():
         torch.cuda.manual_seed(args.seed)
 
 
-    if args.cuda:
-        print('Utilize GPUs for computation')
-        print('Number of GPU available', torch.cuda.device_count())
-        model.cuda()
-        cudnn.benchmark = True
-        model = torch.nn.DataParallel(model)
-
 
     # training parameters
     batch_size = 128
@@ -255,8 +252,13 @@ def main():
                     input_height=args.input_height,
                     cuda_enabled=args.cuda)
     G.weight_init(mean=0.0, std=0.02)
-    G.cuda()
-    D.cuda()
+    if args.cuda:
+        print('Utilize GPUs for computation')
+        print('Number of GPU available', torch.cuda.device_count())
+        print('CUDNN version: ', torch.backends.cudnn.version())
+        # torch.backends.cudnn.benchmark = True
+        G = torch.nn.DataParallel(G).cuda()
+        D = torch.nn.DataParallel(D).cuda()
 
     # Binary Cross Entropy loss
     BCE_loss = nn.BCELoss()
@@ -294,13 +296,19 @@ def main():
 
             y_real_ = torch.ones(mini_batch)
             y_fake_ = torch.zeros(mini_batch)
+            if args.cuda:
+                x_.cuda()
+                y_real_.cuda()
+                y_fake_.cuda()
 
-            x_, y_real_, y_fake_ = Variable(x_.cuda()), Variable(y_real_.cuda()), Variable(y_fake_.cuda())
+            x_, y_real_, y_fake_ = Variable(x_), Variable(y_real_), Variable(y_fake_)
             D_result = D(x_).squeeze()
             D_real_loss = BCE_loss(D_result, y_real_)
 
             z_ = torch.randn((mini_batch, 100)).view(-1, 100, 1, 1)
-            z_ = Variable(z_.cuda())
+            if args.cuda():
+                z_.cuda()
+            z_ = Variable(z_)
             G_result = G(z_)
 
             D_result = D(G_result).squeeze()
@@ -317,6 +325,7 @@ def main():
             G.zero_grad()
 
             z_ = torch.randn((mini_batch, 100)).view(-1, 100, 1, 1)
+		
             z_ = Variable(z_.cuda())
             G_result = G(z_)
             D_result = D(G_result).squeeze()
