@@ -278,7 +278,3 @@ for e in range(train_epoch):
     images.append(imageio.imread(img_name))
 imageio.mimsave('MNIST_DCGAN_results/generation_animation.gif', images, fps=5)
 
-!rm -r lsun
-
-!ls
-
