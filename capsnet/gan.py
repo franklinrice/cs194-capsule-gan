@@ -34,14 +34,17 @@ class generator(nn.Module):
     # initializers
     def __init__(self, d=128):
         super(generator, self).__init__()
-        self.deconv1 = nn.ConvTranspose2d(100, d*8, 4, 1, 0)
+        #self.deconv1 = nn.ConvTranspose2d(100, d*8, 4, 1, 0)
+        self.deconv1 = nn.ConvTranspose2d(100, d*8, 7, 1, 0)
         self.deconv1_bn = nn.BatchNorm2d(d*8)
         self.deconv2 = nn.ConvTranspose2d(d*8, d*4, 4, 2, 1)
         self.deconv2_bn = nn.BatchNorm2d(d*4)
         self.deconv3 = nn.ConvTranspose2d(d*4, d*2, 4, 2, 1)
         self.deconv3_bn = nn.BatchNorm2d(d*2)
+        self.deconv3_pool = nn.MaxPool2d(2)
         self.deconv4 = nn.ConvTranspose2d(d*2, d, 4, 2, 1)
         self.deconv4_bn = nn.BatchNorm2d(d)
+        self.deconv4_pool = nn.MaxPool2d(2)
         self.deconv5 = nn.ConvTranspose2d(d, 1, 4, 2, 1)
 
     # weight_init
@@ -54,9 +57,12 @@ class generator(nn.Module):
         # x = F.relu(self.deconv1(input))
         x = F.relu(self.deconv1_bn(self.deconv1(input)))
         x = F.relu(self.deconv2_bn(self.deconv2(x)))
-        x = F.relu(self.deconv3_bn(self.deconv3(x)))
-        x = F.relu(self.deconv4_bn(self.deconv4(x)))
+        x = F.relu(self.deconv3_pool(self.deconv3_bn(self.deconv3(x))))
+        #print("x 3: {}".format(x.shape))
+        x = F.relu(self.deconv4_pool(self.deconv4_bn(self.deconv4(x))))
+        #print("x 4: {}".format(x.shape))
         x = F.tanh(self.deconv5(x))
+        #print("x 5: {}".format(x.shape))
 
         return x
 
@@ -227,7 +233,7 @@ def main():
     train_epoch = 20
 
     # data_loader
-    img_size = 64
+    img_size = 28#64
     transform = transforms.Compose([
             transforms.Scale(img_size),
             transforms.ToTensor(),
@@ -303,16 +309,18 @@ def main():
 
             x_, y_real_, y_fake_ = Variable(x_), Variable(y_real_), Variable(y_fake_)
             D_result = D(x_).squeeze()
-            D_real_loss = BCE_loss(D_result, y_real_)
+            D_real_loss = BCE_loss(D_result.cuda(), y_real_.cuda())
 
             z_ = torch.randn((mini_batch, 100)).view(-1, 100, 1, 1)
-            if args.cuda():
+            if args.cuda:
                 z_.cuda()
             z_ = Variable(z_)
             G_result = G(z_)
 
+            #print("g result: {}".format(G_result.shape))
+
             D_result = D(G_result).squeeze()
-            D_fake_loss = BCE_loss(D_result, y_fake_)
+            D_fake_loss = BCE_loss(D_result.cuda(), y_fake_.cuda())
             D_fake_score = D_result.data.mean()
             D_train_loss = D_real_loss + D_fake_loss
             D_train_loss.backward()
@@ -329,7 +337,7 @@ def main():
             z_ = Variable(z_.cuda())
             G_result = G(z_)
             D_result = D(G_result).squeeze()
-            G_train_loss = BCE_loss(D_result, y_real_)
+            G_train_loss = BCE_loss(D_result.cuda(), y_real_.cuda())
             G_train_loss.backward()
             G_optimizer.step()
             G_losses.append(G_train_loss.data[0])
