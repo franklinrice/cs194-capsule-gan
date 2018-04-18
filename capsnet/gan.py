@@ -104,7 +104,7 @@ fixed_z_ = torch.randn((5 * 5, 100)).view(-1, 100, 1, 1)    # fixed noise
 if torch.cuda.is_available():
     fixed_z_.cuda()
 fixed_z_ = Variable(fixed_z_)
-def show_result(num_epoch, show = False, save = False, path = 'result.png', isFix=False):
+def show_result(G, num_epoch, show = False, save = False, path = 'result.png', isFix=False):
     z_ = torch.randn((5*5, 100)).view(-1, 100, 1, 1)
     if torch.cuda.is_available():
         z_.cuda()
@@ -352,8 +352,8 @@ def main():
                                                                   torch.mean(torch.FloatTensor(G_losses))))
         p = 'MNIST_DCGAN_results/Random_results/MNIST_DCGAN_' + str(epoch + 1) + '.png'
         fixed_p = 'MNIST_DCGAN_results/Fixed_results/MNIST_DCGAN_' + str(epoch + 1) + '.png'
-        show_result((epoch+1), save=True, path=p, isFix=False)
-        show_result((epoch+1), save=True, path=fixed_p, isFix=True)
+        show_result(G, (epoch+1), save=True, path=p, isFix=False)
+        show_result(G, (epoch+1), save=True, path=fixed_p, isFix=True)
         train_hist['D_losses'].append(torch.mean(torch.FloatTensor(D_losses)))
         train_hist['G_losses'].append(torch.mean(torch.FloatTensor(G_losses)))
         train_hist['per_epoch_ptimes'].append(per_epoch_ptime)
