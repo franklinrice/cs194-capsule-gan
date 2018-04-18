@@ -3,6 +3,15 @@ import pickle
 import torch
 from model import Net
 from gan import generator
+import torch
+import numpy as np
+
+def calculate_r(G, D):
+	batch = 500
+	zs = torch.randn((batch, 100)).view(-1, 100, 1, 1)
+	generated = G(zs)
+	acc = np.sum(D(generated).data.numpy()) / batch
+	return acc
 
 def main():
 
@@ -67,8 +76,8 @@ def main():
         torch.cuda.manual_seed(args.seed)
 
 
-	G = generator(128)
-	D = Net(num_conv_in_channel=args.num_conv_in_channel,
+	G_caps = generator(128)
+	D_caps = Net(num_conv_in_channel=args.num_conv_in_channel,
                     num_conv_out_channel=args.num_conv_out_channel,
                     num_primary_unit=args.num_primary_unit,
                     primary_unit_size=args.primary_unit_size,
@@ -80,10 +89,17 @@ def main():
                     input_width=args.input_width,
                     input_height=args.input_height,
                     cuda_enabled=args.cuda)
-	g_dict = pickle.load(open("MNIST_DCGAN_results/generator_param.pkl", 'rb'))
-	d_dict = pickle.load(open("MNIST_DCGAN_results/discriminator_param.pkl", 'rb'))
-	G.load_state_dict(g_dict)
-	D.load_state_dict(d_dict)
+	g_caps_dict = pickle.load(open("MNIST_DCGAN_results/generator_param.pkl", 'rb'))
+	d_caps_dict = pickle.load(open("MNIST_DCGAN_results/discriminator_param.pkl", 'rb'))
+	G_caps.load_state_dict(g_dict)
+	D_caps.load_state_dict(d_dict)
+
+	G_original = # fill in
+	D_original = # fill in
+
+	r_samples = calculate_r(G_caps, D_original) / calculate_r(G_original, D_caps)
+
+	r_test = # fill in
 
 if __name__ == "__main__":
     main()
