@@ -41,11 +41,12 @@ class generator(nn.Module):
         self.deconv2_bn = nn.BatchNorm2d(d*4)
         self.deconv3 = nn.ConvTranspose2d(d*4, d*2, 4, 2, 1)
         self.deconv3_bn = nn.BatchNorm2d(d*2)
-        self.deconv3_pool = nn.MaxPool2d(2)
+        #self.deconv3_pool = nn.MaxPool2d(2)
         self.deconv4 = nn.ConvTranspose2d(d*2, d, 4, 2, 1)
         self.deconv4_bn = nn.BatchNorm2d(d)
-        self.deconv4_pool = nn.MaxPool2d(2)
+        #self.deconv4_pool = nn.MaxPool2d(2)
         self.deconv5 = nn.ConvTranspose2d(d, 1, 4, 2, 1)
+        self.deconv5_pool = nn.AvgPool2d(4)
 
     # weight_init
     def weight_init(self, mean, std):
@@ -57,11 +58,11 @@ class generator(nn.Module):
         # x = F.relu(self.deconv1(input))
         x = F.relu(self.deconv1_bn(self.deconv1(input)))
         x = F.relu(self.deconv2_bn(self.deconv2(x)))
-        x = F.relu(self.deconv3_pool(self.deconv3_bn(self.deconv3(x))))
+        x = F.relu(self.deconv3_bn(self.deconv3(x)))
         #print("x 3: {}".format(x.shape))
-        x = F.relu(self.deconv4_pool(self.deconv4_bn(self.deconv4(x))))
+        x = F.relu(self.deconv4_bn(self.deconv4(x)))
         #print("x 4: {}".format(x.shape))
-        x = F.tanh(self.deconv5(x))
+        x = F.tanh(self.deconv5_pool(self.deconv5(x)))
         #print("x 5: {}".format(x.shape))
 
         return x
@@ -104,7 +105,7 @@ fixed_z_ = torch.randn((5 * 5, 100)).view(-1, 100, 1, 1)    # fixed noise
 if torch.cuda.is_available():
     fixed_z_.cuda()
 fixed_z_ = Variable(fixed_z_)
-def show_result(num_epoch, show = False, save = False, path = 'result.png', isFix=False):
+def show_result(G, num_epoch, show = False, save = False, path = 'result.png', isFix=False):
     z_ = torch.randn((5*5, 100)).view(-1, 100, 1, 1)
     if torch.cuda.is_available():
         z_.cuda()
@@ -352,8 +353,8 @@ def main():
                                                                   torch.mean(torch.FloatTensor(G_losses))))
         p = 'MNIST_DCGAN_results/Random_results/MNIST_DCGAN_' + str(epoch + 1) + '.png'
         fixed_p = 'MNIST_DCGAN_results/Fixed_results/MNIST_DCGAN_' + str(epoch + 1) + '.png'
-        show_result((epoch+1), save=True, path=p, isFix=False)
-        show_result((epoch+1), save=True, path=fixed_p, isFix=True)
+        show_result(G, (epoch+1), save=True, path=p, isFix=False)
+        show_result(G, (epoch+1), save=True, path=fixed_p, isFix=True)
         train_hist['D_losses'].append(torch.mean(torch.FloatTensor(D_losses)))
         train_hist['G_losses'].append(torch.mean(torch.FloatTensor(G_losses)))
         train_hist['per_epoch_ptimes'].append(per_epoch_ptime)
