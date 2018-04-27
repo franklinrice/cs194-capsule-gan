@@ -12,36 +12,35 @@ from torch.autograd import Variable
 from collections import OrderedDict
 from dcgan import base_generator, base_discriminator
 from scipy.misc import imresize
+from torchvision import datasets, transforms
 
 def calculate_r(G, D, size):
-    batch = 10
+    batch = 100
     zs = Variable(torch.randn((batch, 100)).view(-1, 100, 1, 1))
     generated = G(zs)
-    resized_generated = np.zeros_like(generated.data.numpy())
+    resized_generated = np.zeros((batch, 1, size, size))
     for i in range(batch):
-        print("shape: {}".format(generated.data.numpy()[i][0].shape))
-        print(size)
         resized_generated[i][0] = imresize(generated.data.numpy()[i][0], size=(size, size))
-    print(generated.shape)
     #acc = np.sum(D(resized_generated).data.numpy()) / batch
-    acc = np.sum(D(Variable(torch.from_numpy(resized_generated))).data.numpy()) / batch
+    acc = np.sum(D(Variable(torch.from_numpy(resized_generated).float())).data.numpy()) / batch
     return acc
 
-def calculate_r_test(D):
-    batch_size = 10
+def calculate_r_test(D, size):
+    batch_size = 100
 
-    # test_loader = torch.utils.data.DataLoader(
-    #     datasets.MNIST('data', train=False, download=True, transform=transform),
-    #     batch_size=batch_size, shuffle=True)
+    transform = transforms.Compose([
+            transforms.Scale(size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+    ])
 
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST('data', train=False, download=True),
+        datasets.MNIST('data', train=False, download=True, transform=transform),
         batch_size=batch_size, shuffle=True)
 
     for x_, _ in test_loader:
-        if once:
-            acc = np.sum(D(generated).data.numpy()) / batch_size
-            break
+        acc = np.sum(D(x_).data.numpy()) / batch_size
+        break
     return acc
 
 def load_model(model_type, dict_file):
@@ -172,13 +171,17 @@ def main():
     print("r try: {}".format(r_try))
 
     a = calculate_r(G_caps, D_original, 64)
-    print(a)
     b = calculate_r(G_original, D_caps, 28)
-    print(b)
+    c = calculate_r_test(D_original, 64)
+    d = calculate_r_test(D_caps, 28)
+    print(a, b, c, d)
 
-    r_samples = calculate_r(G_caps, D_original, 64) / calculate_r(G_original, D_caps, 28)
+    r_samples = a / b
+    r_test = c / d
 
-    r_test = calculate_r_test(D_original) / calculate_r_test(D_caps)
+    # r_samples = calculate_r(G_caps, D_original, 64) / calculate_r(G_original, D_caps, 28)
+
+    # r_test = calculate_r_test(D_original, 64) / calculate_r_test(D_caps, 28)
 
     print("R sample is: {}".format(r_samples))
     print("R test is: {}".format(r_test))
