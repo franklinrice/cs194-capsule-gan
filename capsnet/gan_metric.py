@@ -4,18 +4,97 @@ import torch
 from model import Net
 from gan import generator
 import torch
+import torch.nn as nn
 import numpy as np
+import argparse
+import utils
+from torch.autograd import Variable
+from collections import OrderedDict
+from dcgan import base_generator, base_discriminator
+from scipy.misc import imresize
+from torchvision import datasets, transforms
+import matplotlib.pyplot as plt
 
-def calculate_r(G, D):
-	batch = 500
-	zs = torch.randn((batch, 100)).view(-1, 100, 1, 1)
-	generated = G(zs)
-	acc = np.sum(D(generated).data.numpy()) / batch
-	return acc
+def calculate_r(G, D, size):
+    batch = 10
+    zs = Variable(torch.randn((batch, 100)).view(-1, 100, 1, 1))
+    generated = G(zs)
+    resized_generated = np.zeros((batch, 1, size, size))
+    for i in range(batch):
+        resized_generated[i][0] = imresize(generated.data.numpy()[i][0], size=(size, size))
+    #acc = np.sum(D(resized_generated).data.numpy()) / batch
+    print(np.amin(resized_generated), np.amax(resized_generated))
+    acc = np.sum(D(Variable(torch.from_numpy(resized_generated).float())).data.numpy()) / batch
+
+    rg = np.linspace(-1, 1, 10)
+    fig = plt.figure()
+    for i in range(len(rg)):
+        a = fig.add_subplot(5, 6, i + 1)
+        image = resized_generated[i][0]
+        x=plt.imshow(image, cmap = 'gray')
+    fig.subplots_adjust(hspace=.3)
+    plt.show()
+
+
+    return acc
+
+def calculate_r_test(D, size):
+    batch_size = 10
+
+    transform = transforms.Compose([
+            transforms.Scale(size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+    ])
+
+    test_loader = torch.utils.data.DataLoader(
+        datasets.MNIST('data', train=False, download=True, transform=transform),
+        batch_size=batch_size, shuffle=True)
+
+    for x_, _ in test_loader:
+        acc = np.sum(D(x_).data.numpy()) / batch_size
+        break
+    return acc
+
+def load_model(model_type, dict_file):
+    state_dict = torch.load(dict_file, map_location=lambda storage, loc: storage)
+
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        name = k
+        if k[:7] == 'module.':
+            name = k[7:] # remove `module.`
+        if name[:2] == 'fc':
+            name = 'decoder.' + name
+        new_state_dict[name] = v
+
+    model = None
+    if model_type == 'g':
+        model = generator(128)
+    elif model_type == 'd':
+        model = Net(num_conv_in_channel=args.num_conv_in_channel,
+                    num_conv_out_channel=args.num_conv_out_channel,
+                    num_primary_unit=args.num_primary_unit,
+                    primary_unit_size=args.primary_unit_size,
+                    num_classes=args.num_classes,
+                    output_unit_size=args.output_unit_size,
+                    num_routing=args.num_routing,
+                    use_reconstruction_loss=args.use_reconstruction_loss,
+                    regularization_scale=args.regularization_scale,
+                    input_width=args.input_width,
+                    input_height=args.input_height,
+                    cuda_enabled=args.cuda)
+    elif model_type == 'b_g':
+        model = base_generator(128)
+    elif model_type == 'b_d':
+        model = base_discriminator(128)
+
+    model.load_state_dict(new_state_dict)
+    return model
 
 def main():
 
-	global args
+    global args
 
     # Setting the hyper parameters
     parser = argparse.ArgumentParser(description='Example of Capsule Network')
@@ -76,30 +155,49 @@ def main():
         torch.cuda.manual_seed(args.seed)
 
 
-	G_caps = generator(128)
-	D_caps = Net(num_conv_in_channel=args.num_conv_in_channel,
-                    num_conv_out_channel=args.num_conv_out_channel,
-                    num_primary_unit=args.num_primary_unit,
-                    primary_unit_size=args.primary_unit_size,
-                    num_classes=args.num_classes,
-                    output_unit_size=args.output_unit_size,
-                    num_routing=args.num_routing,
-                    use_reconstruction_loss=args.use_reconstruction_loss,
-                    regularization_scale=args.regularization_scale,
-                    input_width=args.input_width,
-                    input_height=args.input_height,
-                    cuda_enabled=args.cuda)
-	g_caps_dict = pickle.load(open("MNIST_DCGAN_results/generator_param.pkl", 'rb'))
-	d_caps_dict = pickle.load(open("MNIST_DCGAN_results/discriminator_param.pkl", 'rb'))
-	G_caps.load_state_dict(g_dict)
-	D_caps.load_state_dict(d_dict)
+    # G_caps = generator(128)
+    # D_caps = Net(num_conv_in_channel=args.num_conv_in_channel,
+    #                 num_conv_out_channel=args.num_conv_out_channel,
+    #                 num_primary_unit=args.num_primary_unit,
+    #                 primary_unit_size=args.primary_unit_size,
+    #                 num_classes=args.num_classes,
+    #                 output_unit_size=args.output_unit_size,
+    #                 num_routing=args.num_routing,
+    #                 use_reconstruction_loss=args.use_reconstruction_loss,
+    #                 regularization_scale=args.regularization_scale,
+    #                 input_width=args.input_width,
+    #                 input_height=args.input_height,
+    #                 cuda_enabled=args.cuda)
 
-	G_original = # fill in
-	D_original = # fill in
+    # #G_caps.load_state_dict(g_caps_dict)
+    # G_caps_dict = torch.load('models/mnist_generator_param.pkl', map_location=lambda storage, loc: storage)
+    # D_caps_dict = torch.load('models/mnist_discriminator_param.pkl', map_location=lambda storage, loc: storage)
+    # #G_caps.load_state_dict(open("models/mnist_generator_param.pkl", 'rb'))
+    # #D_caps.load_state_dict(d_caps_dict)
+    G_caps = load_model('g', 'models/mnist_capsgan_generator_param.pkl')
+    D_caps = load_model('d', 'models/mnist_capsgan_discriminator_param.pkl')
 
-	r_samples = calculate_r(G_caps, D_original) / calculate_r(G_original, D_caps)
+    G_original = load_model('b_g', 'models/mnist_dcgan_generator_param.pkl')
+    D_original = load_model('b_d', 'models/mnist_dcgan_discriminator_param.pkl')
 
-	r_test = # fill in
+    r_try = calculate_r(G_caps, D_caps, 28)
+    print("r try: {}".format(r_try))
+
+    a = calculate_r(G_caps, D_original, 64)
+    b = calculate_r(G_original, D_caps, 28)
+    c = calculate_r_test(D_original, 64)
+    d = calculate_r_test(D_caps, 28)
+    print(a, b, c, d)
+
+    r_samples = a / b
+    r_test = c / d
+
+    # r_samples = calculate_r(G_caps, D_original, 64) / calculate_r(G_original, D_caps, 28)
+
+    # r_test = calculate_r_test(D_original, 64) / calculate_r_test(D_caps, 28)
+
+    print("R sample is: {}".format(r_samples))
+    print("R test is: {}".format(r_test))
 
 if __name__ == "__main__":
     main()
