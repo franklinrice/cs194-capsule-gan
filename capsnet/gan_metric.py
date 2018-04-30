@@ -16,7 +16,7 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 
 def calculate_r(G, D, size):
-    batch = 10
+    batch = 50
     zs = Variable(torch.randn((batch, 100)).view(-1, 100, 1, 1))
     generated = G(zs)
     resized_generated = np.zeros((batch, 1, size, size))
@@ -24,22 +24,23 @@ def calculate_r(G, D, size):
         resized_generated[i][0] = imresize(generated.data.numpy()[i][0], size=(size, size))
     #acc = np.sum(D(resized_generated).data.numpy()) / batch
     print(np.amin(resized_generated), np.amax(resized_generated))
-    acc = np.sum(D(Variable(torch.from_numpy(resized_generated).float())).data.numpy()) / batch
+    acc = np.sum(torch.round(D(Variable(torch.from_numpy(resized_generated).float()))).data.numpy()) / batch
 
-    rg = np.linspace(-1, 1, 10)
-    fig = plt.figure()
-    for i in range(len(rg)):
-        a = fig.add_subplot(5, 6, i + 1)
-        image = resized_generated[i][0]
-        x=plt.imshow(image, cmap = 'gray')
-    fig.subplots_adjust(hspace=.3)
-    plt.show()
+    # Code to visualize
+    # rg = np.linspace(-1, 1, 10)
+    # fig = plt.figure()
+    # for i in range(len(rg)):
+    #     a = fig.add_subplot(5, 6, i + 1)
+    #     image = resized_generated[i][0]
+    #     x=plt.imshow(image, cmap = 'gray')
+    # fig.subplots_adjust(hspace=.3)
+    # plt.show()
 
 
     return acc
 
 def calculate_r_test(D, size):
-    batch_size = 10
+    batch_size = 50
 
     transform = transforms.Compose([
             transforms.Scale(size),
@@ -52,7 +53,8 @@ def calculate_r_test(D, size):
         batch_size=batch_size, shuffle=True)
 
     for x_, _ in test_loader:
-        acc = np.sum(D(x_).data.numpy()) / batch_size
+        #print(D(x_).data.numpy())
+        acc = np.sum(torch.round(D(x_)).data.numpy()) / batch_size
         break
     return acc
 
