@@ -89,6 +89,10 @@ class Net(nn.Module):
         # out_digit_caps shape: [128, 10, 16, 1]
         # batch size: 128, 10 digit class, 16D capsule per digit class.
         out_digit_caps = self.digits(out_primary_caps)
+
+        with open('caps_vectors.txt', 'a+') as f:
+            f.write(out_digit_caps)
+            f.write("\n")
         return out_digit_caps
 
     def loss(self, image, out_digit_caps, target, size_average=True):
