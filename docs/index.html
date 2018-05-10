@@ -20,20 +20,50 @@
 <dt-article>
   <h1>Caps Lock</h1>
   <h2>Generative Adversarial Networks with Capsule Networks</h2>
+  <h3> Abstract </h3>
+  <p>
+    In this paper, we will discuss how we leveraged a capsule network to serve as the discriminator in a Generative Adversarial
+    architecture. We use our model on a variety of similar datasets in the MNIST family, hoping that the vector activations
+    produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to better-looking
+    images. We are especially interested in the situation when input images are transformed or perturbed in some way, namely
+    rotations, which could especially utilize the entity-based claims of semantic understanding claimed by capsule networks.
+    {include something a little more concrete about the result}</p>
   <dt-byline></dt-byline>
-  <p>This is the first paragraph of the article.</p>
-  <p>We can also cite <dt-cite key="gregor2015draw"></dt-cite> external publications.</p>
+  <h3>Background</h3>
+  <p>
+    Two recently popularized, innovative models are GANs (Generative Adversarial Networks)
+    <dt-cite key="iangan"></dt-cite>, and CapsNets (capsule networks)
+    <dt-cite key="hintoncaps"></dt-cite>. In this paper, we will explain how we integrate the two into a CAPSGAN. Due to many deficits in how CNN's
+    work, for example in how a face with noses all over is not necessarily recognized as out of the norm, CapsNet's were
+    created to deal with some of these. Additionally, CNN's lack the ability to be rotationally invariant, something capsule
+    nets are able to accomplish due to their use of vectors as activations rather than scalars..
+  </p>
+  <h4>GAN</h4>
+  <p>Generative adversarial networks are a model used to generate images from a learned distribution. They are composed of two
+    components: a generator that learns to generate images given a vector sampled from the latent distribution, and a discriminator
+    that learns to discriminate between generated images and real ones from the dataset. The two components of this model
+    play a minimax game, by the end of which the generator is able to generate images from the data distribution by randomly
+    sampling from the latent space. Traditionally, architecutres such as a deep convolutional neural network are used for
+    both components, but we propose using a capsule network for the discriminator.</p>
 </dt-article>
 
 <dt-appendix>
 </dt-appendix>
 
 <script type="text/bibliography">
-  @article{gregor2015draw,
+  @article{hintoncaps,
     title={Dynamic Routing Between Capsules},
     author={Sara Sabour, Nicholas Frosst, Geoffrey E Hinton},
     journal={arXiv:1710.09829},
     year={2017},
     url={https://arxiv.org/pdf/1710.09829.pdf}
+  }
+
+  @article{iangan,
+    title={Generative Adversarial Networks},
+    author={Ian J. Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, Yoshua Bengio},
+    journal={arXiv:1406.2661},
+    year={2014},
+    url={https://arxiv.org/pdf/1406.2661.pdf}
   }
 </script>
