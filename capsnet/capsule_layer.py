@@ -136,9 +136,9 @@ class CapsuleLayer(nn.Module):
             # Update routing (b_ij) by adding the agreement to the initial logit.
             b_ij = b_ij + u_vj1
 
-        activation = torch.nn.Sigmoid()
+        # activation = torch.nn.Sigmoid()
 
-        return activation(v_j.squeeze(1)) # shape: [128, 10, 16, 1]
+        return v_j.squeeze(1) # shape: [128, 10, 16, 1]
 
     def no_routing(self, x):
         """
