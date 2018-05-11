@@ -59,10 +59,16 @@
     We chose to investigate the nuances of capsule representations by focusing on various variations of the MNIST dataset. These
     included:
     <ol>
-      <li>Original MNIST, which we obtained through the built-in PyTorch TorchVision datasets</li>
+      <li>Original MNIST, which we obtained through the built-in PyTorch TorchVision datasets
+        <figure><img src="mnist_real.png"><figcaption>MNIST examples</figcaption></figure>
+      </li>
       <li> Extended MNIST (EMNIST) which contains both letters and numbers, each of which is rotated randomly, and for which we
-        also utilized the TorchVision datasets; </li>
-      <li> Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees</li>
+        also utilized the TorchVision datasets; 
+        <figure> <img src="emnist_real.png"><figcaption>EMNIST examples</figcaption></figure>
+      </li>
+      <li> Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees
+          <figure> <img src="mnist_rot_real.png"><figcaption>Rotated MNIST examples</figcaption></figure>
+      </li>
     </ol>
     <p>
       Our hope was that, by looking more deeply into these similar datasets, we would be able to discern more detailed learning
@@ -74,6 +80,7 @@
     <dt-cite
       key="dcgan"></dt-cite> developed by Radford et.al. as a baseline. This GAN has a very similar architecture to ours, the difference
       of emphasis being that its discriminator utilizes a deep convolutional network instead of a capsule network.</p>
+      <figure> <img src="https://wp-cdn-2.s3.amazonaws.com/wp-content/uploads/2017/09/deep_convolutional_generative_adversarial_network1.png"><figcaption>DCGAN architecture </figcaption></figure>
   <h4>Model</h4>
   <p>In our implementation, we propose replacing the discriminative component of the GAN with a CapsNet. CapsNets have been
     shown to have remarkable classification properties, especially in regards to being rotationally invariant, so our hope
