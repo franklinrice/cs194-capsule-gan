@@ -1,0 +1,21 @@
+analysis of GIFs:
+
+We generated synthetic MNIST images {show examples of images} and tried to identify the capsule components that represent the rotation, skew, scale, translation, stroke thickness, and stretch of the number. To find these mappings, we applied those transformations to our MNIST images and ran our discriminator on them. For example, we created 7 different images of the same 4, but with various degrees of rotation. We then analyzed the final capsule layer in the discriminator after each of the transformed was passed through. To visualize how the capsule net activations change with respect to image transformations, we created gifs of each, which can be found below.
+
+The capsule network’s last layer output an 8 x 1152 matrix. One of the features of capsule networks is that the activation vectors have magnitude equal to 1, regardless of the dimensionality. Thus, in this 9216 dimensional vector, most of the components were very small. This is known as the curse of dimensionality, where most components of a vector go to 0 as the dimension of the vector increases and the magnitude is kept constant. 
+
+The most relevant components would have higher values than the rest, so we wanted to isolate them. We zero’d all components whose values were less than 60% of the max value and more than 60% of the min value for the entire capsule network. This isolated components whose activations were actually relevant.
+
+Then, to find which components map to which features, we looked at the difference between 2 capsule networks of 2 images with varying degrees of the same transformation. For example, subtracting the capsule activation for a 4 with 45˚ rotation from the activation of a 4 with 0˚ rotation yields the following:
+
+{show example diff}
+
+Doing this for each pair of successive images yields a clear picture of which components are consistently activated as transformations take place:
+
+{show all gif activations next to gif of transformations}
+
+The most evident components are in the rotation of the 4. The yellow pixels represent positive values for a component and dark blue represents negative. Teal is 0. The main activations for the rotation can be found in bands. What’s interesting is that each band’s components flip between dark blue and yellow depending on the orientation of the image. For example, during the cycle of the gif the band in the lower left corner will have dark blue pixels on the left along with yellow pixels on the right, and then yellow pixels on the left and blue pixels on the right when the image rotates 180˚. This mirroring behavior is evident in almost every active band for this transformation. These components of the capsule network are representing the rotation of the image. 
+
+Another interesting thing we discovered is the row of neurons in the bottom left corner (0-22, 95) and are active in all of the transformations. Interpreting the exact meaning of the band is difficult because there are other components that are activated in every capsule layer. However, we can still glean meaning from trends within a transformation. For the 0 transformation, the band goes from negative on the left side to positive on the right side as the 0 shrinks. For the 4 stroke thickness, the activations move to the right on the band as the stroke gets thicker. For the 8 skew, the trend is the opposite, the activation skips to the left as the 8 is skewed. Another interesting point about the 8 skew activations is that this band is the only 1 of 4 bands that consistently appears in each transformation (the other two are (3-11, 50), (5-22, 38), and (60-70, 20). The 8 translation gif also displays some interesting patterns. In the  (0-22, 95) band there is a checkered pattern that moves to the right as a unit as the 8 is translated. The other activation bands are fairly homogenous (either all positive components or all negative components).
+
+Overall, analyzing the capsule network shows that the layers are learning rich representations of the MNIST digits. These nuanced representations help the discriminator better discern between real or fake images, which in turn provides nuanced feedback to the generator through backprop. 
