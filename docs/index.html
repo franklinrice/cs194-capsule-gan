@@ -16,24 +16,168 @@
   - UC Berkeley: https://eecs.berkeley.edu/
   - UC Berkeley: https://eecs.berkeley.edu/
 </script>
-
 <dt-article>
   <h1>Caps Lock</h1>
   <h2>Generative Adversarial Networks with Capsule Networks</h2>
+  <h3> Abstract </h3>
+  <p>
+    In this paper, we will discuss how we leveraged a capsule network to serve as the discriminator in a Generative Adversarial
+    architecture. We use our model on a variety of similar datasets in the MNIST family, hoping that the vector activations
+    produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to better-looking
+    images. We are especially interested in the situation when input images are transformed or perturbed in some way, namely
+    rotations, which could especially utilize the entity-based claims of semantic understanding claimed by capsule networks.
+    {include something a little more concrete about the result}</p>
   <dt-byline></dt-byline>
-  <p>This is the first paragraph of the article.</p>
-  <p>We can also cite <dt-cite key="gregor2015draw"></dt-cite> external publications.</p>
+  <h3>Background</h3>
+  <p>
+    Two recently popularized, innovative models are GANs (Generative Adversarial Networks)
+    <dt-cite key="iangan"></dt-cite>, and CapsNets (capsule networks)
+    <dt-cite key="hintoncaps"></dt-cite>. In this paper, we will explain how we integrate the two into a CAPSGAN. Due to many deficits in how CNN's
+    work, for example in how a face with noses all over is not necessarily recognized as out of the norm, CapsNet's were
+    created to deal with some of these. Additionally, CNN's lack the ability to be rotationally invariant, something capsule
+    nets are able to accomplish due to their use of vectors as activations rather than scalars..
+  </p>
+  <h4>GAN</h4>
+  <p>Generative adversarial networks are a model used to generate images from a learned distribution. They are composed of two
+    components: a generator that learns to generate images given a vector sampled from the latent distribution, and a discriminator
+    that learns to discriminate between generated images and real ones from the dataset. The two components of this model
+    play a minimax game, by the end of which the generator is able to generate images from the data distribution by randomly
+    sampling from the latent space. Traditionally, architecutres such as a deep convolutional neural network are used for
+    both components, but we propose using a capsule network for the discriminator.</p>
+  <h4>CapsNet</h4>
+  <p>Capsule networks
+    <dt-cite key="capsgan"></dt-cite> are a recent development that leverage a new architecture that aims to make up for some of the faults of traditional
+    convolutional neural networks. In this model, each capsule is responsible for a region of the input, and outputs an array
+    of values representing it. Capsule networks also use a different kind of nonlinearity then traditional CNN's called squashing,
+    which scales the vector so that it's magnitude denotes a probability value. Because a capsule contains many pieces of
+    information about a location, a procedure called routing determines what is sent up to the next layer based off what
+    is believed to be more important. \textcolor{red}{\textbf{add more about why these are better than convolutions}}
+  </p>
+  <h3>Our approach</h3>
+  <h4>Data</h4>
+  <p>
+    We chose to investigate the nuances of capsule representations by focusing on various variations of the MNIST dataset. These
+    included:
+    <ol>
+      <li>Original MNIST, which we obtained through the built-in PyTorch TorchVision datasets
+        <figure>
+          <img src="mnist_real.png">
+          <figcaption>MNIST examples</figcaption>
+        </figure>
+      </li>
+      <li> Extended MNIST (EMNIST) which contains both letters and numbers, each of which is rotated randomly, and for which we
+        also utilized the TorchVision datasets;
+        <figure>
+          <img src="emnist_real.png">
+          <figcaption>EMNIST examples</figcaption>
+        </figure>
+      </li>
+      <li> Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees
+        <figure>
+          <img src="mnist_rot_real.png">
+          <figcaption>Rotated MNIST examples</figcaption>
+        </figure>
+      </li>
+    </ol>
+    <p>
+      Our hope was that, by looking more deeply into these similar datasets, we would be able to discern more detailed learning
+      points than if we simply obtained proof-of-concept results on a larger breadth of datasets.</p>
+  </p>
+
+  <h4>Baseline</h4>
+  <p>We chose to also perform the same experiments using the Deep Convolutional Generative Adversarial Network (DCGAN)
+    <dt-cite key="dcgan"></dt-cite> developed by Radford et.al. as a baseline. This GAN has a very similar architecture to ours, the difference
+    of emphasis being that its discriminator utilizes a deep convolutional network instead of a capsule network.</p>
+  <figure>
+    <img src="https://wp-cdn-2.s3.amazonaws.com/wp-content/uploads/2017/09/deep_convolutional_generative_adversarial_network1.png">
+    <figcaption>DCGAN architecture </figcaption>
+  </figure>
+  <h4>Model</h4>
+  <p>In our implementation, we propose replacing the discrimination component of the GAN with a CapsNet. CapsNets have been
+    shown to have remarkable classification properties, which we leverage in the training process for the generator. This
+    increased scrutiny on the generator results in more robust and impressive images. For the generator, we used the same
+    model as the DCGAN but make numerous architectural changes we felt would help the generator as well as in regards to
+    outputting a 28x28 image rather than a 64x64 one that it originally generated. We tried out different layers in which
+    to add a singular Mean Pooling Layer, finally settling on the last layer as that yielded the best results. For the discriminator,
+    we modified a CapsNet originally used for MNIST classification so that rather than outputting the probabilities an image
+    belonged to one of the ten labels, there is a single output vector whose magnitude is the probability of the image being
+    real or generated. The squash activation at the end ensures the output can be used as a probability measure, and thus
+    our discriminator could be plugged into our GAN model.</p>
+
+  <h3>Results</h3>
+  <p>Our trained generator was able to generate sufficiently similar images for all three of our datasets.
+    <figure>
+      <img src="mnist-results.png">
+      <figcaption>MNIST generated samples</figcaption>
+    </figure>
+    <figure>
+      <img src="emnist-results.png">
+      <figcaption>EMNIST generated samples</figcaption>
+    </figure>
+    <figure>
+      <img src="mnist-rot-results.png">
+      <figcaption>Rotated MNIST generated samples</figcaption>
+    </figure>
+  </p>
+  <p>We also evaluated the strength of our GAN with the Generative Adversarial Metric proposed by Im et. al.
+    <dt-cite key="ganmetric"></dt-cite>
+    Our network has a r_sample score of TODO and a r_test score of TODO, compared to the baseline score of.
+  </p>
+  <h3>Training</h3>
+  <figure>
+    <img src="mnist_train_hist.png">
+    <figcaption>MNIST training loss history</figcaption>
+  </figure>
+  <figure>
+    <img src="emnist_train_hist.png">
+    <figcaption>EMNIST training loss history</figcaption>
+  </figure>
+  <figure>
+    <img src="mnist_rot_train_hist.png">
+    <figcaption>Rotated MNIST training loss history</figcaption>
+  </figure>
 </dt-article>
 
 <dt-appendix>
 </dt-appendix>
 
 <script type="text/bibliography">
-  @article{gregor2015draw,
+  @article{hintoncaps,
     title={Dynamic Routing Between Capsules},
     author={Sara Sabour, Nicholas Frosst, Geoffrey E Hinton},
     journal={arXiv:1710.09829},
     year={2017},
     url={https://arxiv.org/pdf/1710.09829.pdf}
   }
+
+  @article{iangan,
+    title={Generative Adversarial Networks},
+    author={Ian J. Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, Yoshua Bengio},
+    journal={arXiv:1406.2661},
+    year={2014},
+    url={https://arxiv.org/pdf/1406.2661.pdf}
+  }
+
+  @article{capsgan,
+    title={CapsuleGAN: Generative Adversarial Capsule Network},
+    author={Ayush Jaiswal, Wael AbdAlmageed, Yue Wu, Premkumar Natarajan},
+    journal={arXiv:1802.06167},
+    year={2018},
+    url={https://arxiv.org/pdf/1802.06167.pdf}
+  }
+
+  @article{dcgan,
+    Author = {Alec Radford and Luke Metz and Soumith Chintala},
+    Title = {Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks},
+    Year = {2015},
+    journal = {arXiv:1511.06434},
+    url={https://arxiv.org/pdf/1511.06434.pdf}
+    }
+  @article{ganmetric,
+      Author = {Daniel Jiwoong Im and Chris Dongjoo Kim and Hui Jiang and Roland Memisevic},
+      Title = {Generating images with recurrent adversarial networks},
+      Year = {2016},
+      journal = {arXiv:1602.05110},
+      url = {https://arxiv.org/pdf/1602.05110.pdf}
+      }
 </script>
