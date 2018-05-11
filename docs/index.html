@@ -60,14 +60,23 @@
     included:
     <ol>
       <li>Original MNIST, which we obtained through the built-in PyTorch TorchVision datasets
-        <figure><img src="mnist_real.png"><figcaption>MNIST examples</figcaption></figure>
+        <figure>
+          <img src="mnist_real.png">
+          <figcaption>MNIST examples</figcaption>
+        </figure>
       </li>
       <li> Extended MNIST (EMNIST) which contains both letters and numbers, each of which is rotated randomly, and for which we
-        also utilized the TorchVision datasets; 
-        <figure> <img src="emnist_real.png"><figcaption>EMNIST examples</figcaption></figure>
+        also utilized the TorchVision datasets;
+        <figure>
+          <img src="emnist_real.png">
+          <figcaption>EMNIST examples</figcaption>
+        </figure>
       </li>
       <li> Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees
-          <figure> <img src="mnist_rot_real.png"><figcaption>Rotated MNIST examples</figcaption></figure>
+        <figure>
+          <img src="mnist_rot_real.png">
+          <figcaption>Rotated MNIST examples</figcaption>
+        </figure>
       </li>
     </ol>
     <p>
@@ -77,24 +86,40 @@
 
   <h4>Baseline</h4>
   <p>We chose to also perform the same experiments using the Deep Convolutional Generative Adversarial Network (DCGAN)
-    <dt-cite
-      key="dcgan"></dt-cite> developed by Radford et.al. as a baseline. This GAN has a very similar architecture to ours, the difference
-      of emphasis being that its discriminator utilizes a deep convolutional network instead of a capsule network.</p>
-      <figure> <img src="https://wp-cdn-2.s3.amazonaws.com/wp-content/uploads/2017/09/deep_convolutional_generative_adversarial_network1.png"><figcaption>DCGAN architecture </figcaption></figure>
+    <dt-cite key="dcgan"></dt-cite> developed by Radford et.al. as a baseline. This GAN has a very similar architecture to ours, the difference
+    of emphasis being that its discriminator utilizes a deep convolutional network instead of a capsule network.</p>
+  <figure>
+    <img src="https://wp-cdn-2.s3.amazonaws.com/wp-content/uploads/2017/09/deep_convolutional_generative_adversarial_network1.png">
+    <figcaption>DCGAN architecture </figcaption>
+  </figure>
   <h4>Model</h4>
-  <p>In our implementation, we propose replacing the discriminative component of the GAN with a CapsNet. CapsNets have been
-    shown to have remarkable classification properties, especially in regards to being rotationally invariant, so our hope
-    is that this will strengthen the discriminator, which will in turn encourage the generator to become more robust and
-    generate more impressive images. For the generator, we used the same model as the DCGAN but make numerous architectural
-    changes we felt would help the generator as well as in regards to outputting a 28x28 image rather than a 64x64 one that
-    it originally generated. We tried out different layers in which to add a singular Mean Pooling Layer, finally settling
-    on the last layer as that yielded the best results. For the discriminator, we modified a CapsNet originally used for
-    MNIST classification so that rather than outputting the probabilities an image belonged to one of the ten labels, there
-    is a single output vector whose magnitude is the probability of the image being real or generated. The squash activation
-    at the end ensures the output can be used as a probability measure, and thus our discriminator could be plugged into
-    our GAN model. We tried using various other activations, but these just disrupted the model, and were redundant when
-    used in addition to the squashing. \textcolor{red}{\textbf{talk more about how we want to leverage the capsule network's
-    benefits over cnn and how that will specifically help gan images a lot}}</p>
+  <p>In our implementation, we propose replacing the discrimination component of the GAN with a CapsNet. CapsNets have been
+    shown to have remarkable classification properties, which we leverage in the training process for the generator. This
+    increased scrutiny on the generator results in more robust and impressive images. For the generator, we used the same
+    model as the DCGAN but make numerous architectural changes we felt would help the generator as well as in regards to
+    outputting a 28x28 image rather than a 64x64 one that it originally generated. We tried out different layers in which
+    to add a singular Mean Pooling Layer, finally settling on the last layer as that yielded the best results. For the discriminator,
+    we modified a CapsNet originally used for MNIST classification so that rather than outputting the probabilities an image
+    belonged to one of the ten labels, there is a single output vector whose magnitude is the probability of the image being
+    real or generated. The squash activation at the end ensures the output can be used as a probability measure, and thus
+    our discriminator could be plugged into our GAN model.</p>
+
+  <h3>Results</h3>
+  <p>Our trained generator was able to generate sufficiently similar images for all three of our datasets.
+    <figure>
+      <img src="mnist-results.png">
+      <figcaption>MNIST generated samples</figcaption>
+    </figure>
+    <figure>
+      <img src="emnist-results.png">
+      <figcaption>EMNIST generated samples</figcaption>
+    </figure>
+    <figure>
+      <img src="mnist-rot-results.png">
+      <figcaption>Rotated MNIST generated samples</figcaption>
+    </figure>
+  </p>
+  <h3>Training</h3>
 </dt-article>
 
 <dt-appendix>
