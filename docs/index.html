@@ -3,8 +3,8 @@
 <script src="template.js"></script>
 
 <script type="text/front-matter">
-  title: "Article Title"
-  description: "Description of the post"
+  title: "Caps Lock"
+  description: "Exploring Generative Adversarial Netorks with Capsule Discrimination"
   authors:
   - Kevin Jiao: https://kevinjiao.me
   - Pasha Minkovsky: http://google.com
@@ -142,6 +142,31 @@
     <img src="mnist_rot_train_hist.png">
     <figcaption>Rotated MNIST training loss history</figcaption>
   </figure>
+  <h3>Visualization</h3>
+  <p>
+  By perturbing a particular index of our latent vector, we were able to visualize how values at that index affected the output image.
+  The following gif's were created from the generator output of a fixed latent vector, with one index changing by a fixed number.
+  
+  In this example, we discovered a scalar that corresponded to the length of the left leg of a 4.
+</p>
+  <figure>
+      <img src="4.gif">
+      <figcaption>Notice the left vertical portion changing</figcaption>
+    </figure>
+
+  <p>This next one has an affect on how sharp the corners of a 5 are.</p>
+</p>
+<figure>
+    <img src="5.gif">
+    <figcaption>See how the entire figure goes from sharp to curved</figcaption>
+  </figure>
+  <p>One other example is this one, where changing a single index effects how large the lower loop of a 6 is. At the most extreme it is non-existent,
+    and at the other it is clearly a 6.
+  </p>
+  <figure>
+      <img src="6.gif">
+      <figcaption>The transformation from 1 to 6</figcaption>
+    </figure>
 </dt-article>
 
 <dt-appendix>
