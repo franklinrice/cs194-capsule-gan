@@ -70,11 +70,15 @@ class Net(nn.Module):
                                    use_routing=True,
                                    num_routing=num_routing,
                                    cuda_enabled=cuda_enabled)
+        self.fc = nn.Linear(output_unit_size, 1)
+        self.sig = nn.Sigmoid()
 
         # Reconstruction network
         if use_reconstruction_loss:
             self.decoder = Decoder(num_classes, output_unit_size, input_width,
                                    input_height, num_conv_in_channel, cuda_enabled)
+        
+        self.out_features = None
 
     def forward(self, x):
         """
@@ -89,11 +93,17 @@ class Net(nn.Module):
         # out_digit_caps shape: [128, 10, 16, 1]
         # batch size: 128, 10 digit class, 16D capsule per digit class.
         out_digit_caps = self.digits(out_primary_caps)
+        
+        self.out_features = out_digit_caps
 
-        with open('caps_vectors.txt', 'a+') as f:
-            f.write(out_digit_caps)
-            f.write("\n")
-        return out_digit_caps
+#         with open('synthetic_results/caps_vectors.txt', 'a+') as f:
+#             f.write(out_digit_caps)
+#             f.write("\n")
+#         print(out_conv1.shape)
+#         print(out_primary_caps.shape)
+#         print(out_digit_caps.shape)
+        out_single = self.fc(out_digit_caps.squeeze())
+        return self.sig(out_single)
 
     def loss(self, image, out_digit_caps, target, size_average=True):
         """Custom loss function
