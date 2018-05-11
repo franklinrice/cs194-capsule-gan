@@ -23,35 +23,41 @@
   <p>
     In this paper, we will discuss how we leveraged a capsule network to serve as the discriminator in a Generative Adversarial
     architecture. We use our model on a variety of similar datasets in the MNIST family, hoping that the vector activations
-    produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to better-looking
-    images. We are especially interested in the situation when input images are transformed or perturbed in some way, namely
-    rotations, which could especially utilize the entity-based claims of semantic understanding claimed by capsule networks.
-    {include something a little more concrete about the result}</p>
+    produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to improved
+    generated images. We are especially interested in transformed and and rotated images, which capsule networks perform
+    particularly well with. We achieve significant improvements over the baseline model of a convolutional-deconvolutional
+    GAN.
+  </p>
   <dt-byline></dt-byline>
   <h3>Background</h3>
   <p>
     Two recently popularized, innovative models are GANs (Generative Adversarial Networks)
     <dt-cite key="iangan"></dt-cite>, and CapsNets (capsule networks)
-    <dt-cite key="hintoncaps"></dt-cite>. In this paper, we will explain how we integrate the two into a CAPSGAN. Due to many deficits in how CNN's
-    work, for example in how a face with noses all over is not necessarily recognized as out of the norm, CapsNet's were
-    created to deal with some of these. Additionally, CNN's lack the ability to be rotationally invariant, something capsule
-    nets are able to accomplish due to their use of vectors as activations rather than scalars..
+    <dt-cite key="hintoncaps"></dt-cite>. In this paper, we will explain how we integrate the two into a CAPSGAN. 
+    The strength of a Capsule Network lies in its dynamic routing capabilities, which direct the output of a neuron based on
+    its cosine similarity with other neurons. Capsule networks also internally represent objects as vectors, providing far more
+    expressive power than a traditional CNN. This representation also allows for rotational invariance, which we test against a
+    rotated MNIST dataset.
   </p>
   <h4>GAN</h4>
   <p>Generative adversarial networks are a model used to generate images from a learned distribution. They are composed of two
     components: a generator that learns to generate images given a vector sampled from the latent distribution, and a discriminator
     that learns to discriminate between generated images and real ones from the dataset. The two components of this model
     play a minimax game, by the end of which the generator is able to generate images from the data distribution by randomly
-    sampling from the latent space. Traditionally, architecutres such as a deep convolutional neural network are used for
+    sampling from the latent space. Traditionally, architectures such as a deep convolutional neural network are used for
     both components, but we propose using a capsule network for the discriminator.</p>
   <h4>CapsNet</h4>
   <p>Capsule networks
-    <dt-cite key="capsgan"></dt-cite> are a recent development that leverage a new architecture that aims to make up for some of the faults of traditional
+    <dt-cite key="capsgan"></dt-cite> are a recent development that addresses some of the weaknesses of traditional
     convolutional neural networks. In this model, each capsule is responsible for a region of the input, and outputs an array
-    of values representing it. Capsule networks also use a different kind of nonlinearity then traditional CNN's called squashing,
+    of values representing it. Capsule networks also use a different kind of non-linearity then traditional CNN's called squashing,
     which scales the vector so that it's magnitude denotes a probability value. Because a capsule contains many pieces of
     information about a location, a procedure called routing determines what is sent up to the next layer based off what
-    is believed to be more important. \textcolor{red}{\textbf{add more about why these are better than convolutions}}
+    is believed to be more important.
+    <figure>
+      <img src="capsnet-diagram.png">
+      <figcaption>Capsule network visualization</figcaption>
+    </figure>
   </p>
   <h3>Our approach</h3>
   <h4>Data</h4>
