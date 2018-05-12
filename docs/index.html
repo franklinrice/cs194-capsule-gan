@@ -301,7 +301,7 @@ Here are some of the image sequences we made to test:
   </ul>
 </p>
 <p>
-  One of the features of capsule networks is that the activation vectors have magnitude equal to 1, regardless of the dimensionality. Thus, in the 9216 dimensional PrimaryCaps vector, most of the components were very small. This is one of the colloquially named "curses of dimensionality", whereby most components of a vector go to 0 as the dimension of the vector increases and the magnitude is kept constant. 
+  One of the features of capsule networks is that the activation vectors have magnitude equal to 1, regardless of the dimensionality. Thus, in the 9216 dimensional PrimaryCaps vector, most of the components were very small. This is one of the colloquially named "curse of dimensionality", whereby most components of a vector go to 0 as the dimension of the vector increases and the magnitude is kept constant. 
 
 The most relevant components would have higher values than the rest, so we wanted to isolate them. We zero’d all components whose values were less than 60% of the max value and more than 60% of the (negative) min value for the entire capsule network. This isolated components whose activations were most relevant.
 
