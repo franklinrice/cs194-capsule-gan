@@ -1,0 +1,60 @@
+.large_img {
+	width: 90%;
+}
+
+.media-row {
+	margin-left: 50px;
+	margin-right: 50px;
+}
+
+.big-gif {
+	height: 300px;
+	width: 300px;
+	display: inline;
+}
+
+.insert-right {
+	float: right;
+	clear: right;
+	height: 20vw;
+	width: 20vw;
+}
+
+.insert-left {
+	float: left;
+	clear: left;
+	height: 20vw;
+	width: 20vw;
+}
+
+.full-img {
+	width: 100%;
+}
+
+.banner {
+	width: 100%;
+	text-align: center;
+	clear: both;
+	overflow: auto;
+}
+
+.inline-img {
+	float: left;
+	display: block;
+	margin: auto;
+	max-width: 300px;
+	max-height: 300px;
+}
+
+.notop {
+	margin-top: 0px;
+}
+
+.nobot {
+	margin-bottom: 0px;
+}
+
+.caponly {
+	margin: 0px 0px 0px 72px;
+	clear: none;
+}
