@@ -31,7 +31,7 @@
     produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to improved
     generated images. We are especially interested in transformed and rotated images, which capsule networks perform
     particularly well with. We achieve significant improvements over the baseline model of a deep convolutional
-    GAN. To further our analysis, we pinpoint certain areas in the latent space in which certain image transformations or patterns arise. 
+    GAN. To further our analysis, we pinpoint certain areas in the latent space in which certain image transformations or patterns arise. Our code is located <a href="https://github.com/franklinrice/cs194-capsule-gan">here</a>.
   </p>
   <dt-byline></dt-byline>
   <h3>Background</h3>
@@ -183,6 +183,7 @@
     </div>
   </p>
   <h3>Training</h3>
+  When training our models, it often took us a couple starts so that we wouldn't end up with a model that suffered from mode collapse. This is due to the large impact we found seeding and initialization to have. It was unfortunate that this wasn't clear until a couple epochs in, so it was a little tedious during the training process.
 
   <figure>
     <img src="mnist+emnist_train_hist.png">
