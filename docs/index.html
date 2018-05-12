@@ -24,14 +24,14 @@
 <dt-article>
   <h1>Caps Lock</h1>
   <h2>Generative Adversarial Networks with Capsule Networks</h2>
-  <h3> Abstract </h3>
+  <h3> Overview </h3>
   <p>
-    In this paper, we will discuss how we leveraged a capsule network to serve as the discriminator in a Generative Adversarial
+    In this blogpost, we will discuss how we leveraged a capsule network to serve as the discriminator in a Generative Adversarial
     architecture. We use our model on a variety of similar datasets in the MNIST family, hoping that the vector activations
     produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to improved
-    generated images. We are especially interested in transformed and and rotated images, which capsule networks perform
-    particularly well with. We achieve significant improvements over the baseline model of a convolutional-deconvolutional
-    GAN.
+    generated images. We are especially interested in transformed and rotated images, which capsule networks perform
+    particularly well with. We achieve significant improvements over the baseline model of a deep convolutional
+    GAN. To further our analysis, we pinpoint certain areas in the latent space in which certain image transformations or patterns arise. 
   </p>
   <dt-byline></dt-byline>
   <h3>Background</h3>
@@ -55,7 +55,7 @@
   <p>Capsule networks
     <dt-cite key="capsgan"></dt-cite> are a recent development that addresses some of the weaknesses of traditional
     convolutional neural networks. In this model, each capsule is responsible for a region of the input, and outputs an array
-    of values representing it. Capsule networks also use a different kind of non-linearity then traditional CNN's called squashing,
+    of values representing it. By using vectors activations rather than scalars, capsules are able to send much more information onto the next layer about the kinds of features captured in the image. Both the direction and magnitude of the vector contain important information about the features. Capsule networks also use a different kind of non-linearity then traditional CNN's called squashing,
     which scales the vector so that it's magnitude denotes a probability value. Because a capsule contains many pieces of
     information about a location, a procedure called routing determines what is sent up to the next layer based off what
     is believed to be more important.
@@ -148,6 +148,16 @@
     <figcaption>Rotated MNIST training loss history</figcaption>
   </figure>
 
+  <h3>Experiments</h3>
+  <h4>Running with Different Steps</h4>
+  <p>
+    Other things we tried out to train better images, in addition to the extensive architecture and hyperparameter tuning discussed above, include running the generator and discriminator for different amounts of steps. The intuition behind trying this was we realized that because we are using a capsule net as a discriminator rather than a more simple convolutional network, our discriminator might be more powerful than our generator, and thus rather than training in parallel with the generator, might outpace it leading to poor images. To resolve this, we tried training our generator for n steps to every 1 of the discriminator's, however we found that this didn't work very well as this led to quick mode collapse. Thus, most of our results actually came from just running 1 step on each model in pace with each other, because we used a vanilla-enough capsule network as the discriminator that it was able to be trained in parallel to the generator. Neither model “outpaced” the other, so the feedback was never saturated.
+  </p>
+
+  <h4>Possible Rotational Advantages</h4>
+  <p>
+    Another thing we tried to see if we could isolate the effects of the capsule network as a discriminator over a convolutional network as one was taking the discriminators from both models trained on regular MNIST, and running them against test images from the rotated MNIST dataset, hoping to see if the CapsGan discriminator would classify them as real, whereas the DCGAN discriminator would classify them as fake because the convolutional layers were unable to deal with the rotational invariance. However, this did not work as expected because both discriminators classified all of the images as fake. However, this may be because the rotated images seem to have a sort of blur around the edges, due to the fact that rotation of a $28x28$ image does not cause the images to remain as smooth as they did before. Just from viewing the MNIST dataset regular and rotated, one can spot the difference, so we hypothesize that the discriminator is unable to deal with the rotation for this reason, rather than a lack of rotational invariance.
+  </p>
 
   <h3>Visualization</h3>
   <p>
