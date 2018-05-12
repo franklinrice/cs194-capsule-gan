@@ -31,7 +31,7 @@
     produced by a capsule network will be able to provide more nuanced feedback to the generator, and thus lead to improved
     generated images. We are especially interested in transformed and rotated images, which capsule networks perform
     particularly well with. We achieve significant improvements over the baseline model of a deep convolutional
-    GAN. To further our analysis, we pinpoint certain areas in the latent space in which certain image transformations or patterns arise. 
+    GAN. To further our analysis, we pinpoint certain areas in the latent space in which certain image transformations or patterns arise. Our code is located <a href="https://github.com/franklinrice/cs194-capsule-gan">here</a>.
   </p>
   <dt-byline></dt-byline>
   <h3>Background</h3>
@@ -183,6 +183,7 @@
     </div>
   </p>
   <h3>Training</h3>
+  When training our models, it often took us a couple starts so that we wouldn't end up with a model that suffered from mode collapse. This is due to the large impact we found seeding and initialization to have. It was unfortunate that this wasn't clear until a couple epochs in, so it was a little tedious during the training process.
 
   <figure>
     <img src="mnist+emnist_train_hist.png">
@@ -303,7 +304,7 @@ Here are some of the image sequences we made to test:
   </ul>
 </p>
 <p>
-  One of the features of capsule networks is that the activation vectors have magnitude equal to 1, regardless of the dimensionality. Thus, in the 9216 dimensional PrimaryCaps vector, most of the components were very small. This is one of the colloquially named "curses of dimensionality", whereby most components of a vector go to 0 as the dimension of the vector increases and the magnitude is kept constant. 
+  One of the features of capsule networks is that the activation vectors have magnitude equal to 1, regardless of the dimensionality. Thus, in the 9216 dimensional PrimaryCaps vector, most of the components were very small. This is one of the colloquially named "curse of dimensionality", whereby most components of a vector go to 0 as the dimension of the vector increases and the magnitude is kept constant. 
 
 The most relevant components would have higher values than the rest, so we wanted to isolate them. We zero’d all components whose values were less than 60% of the max value and more than 60% of the (negative) min value for the entire capsule network. This isolated components whose activations were most relevant.
 
