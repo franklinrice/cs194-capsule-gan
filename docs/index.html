@@ -116,6 +116,7 @@
     our discriminator could be plugged into our GAN model.</p>
 
   <h3>Results</h3>
+  <h4>Qualitative</h4>
   <p>Our trained generator was able to generate sufficiently similar images for all three of our datasets.
     <figure>
       <img src="mnist-results.png">
@@ -130,10 +131,6 @@
       <figcaption>Rotated MNIST generated samples</figcaption>
     </figure>
   </p>
-  <p>We also evaluated the strength of our GAN with the Generative Adversarial Metric proposed by Im et. al.
-    <dt-cite key="ganmetric"></dt-cite>
-    Our network has a r_sample score of TODO and a r_test score of TODO, compared to the baseline score of.
-  </p>
   <h3>Training</h3>
   <figure>
     <img src="mnist_train_hist.png">
@@ -147,6 +144,11 @@
     <img src="mnist_rot_train_hist.png">
     <figcaption>Rotated MNIST training loss history</figcaption>
   </figure>
+  <h4>Quantitative</h4>
+  <p>We also evaluated the strength of our GAN with the Generative Adversarial Metric proposed by Im et. al.
+    <dt-cite key="ganmetric"></dt-cite>
+    On the regular MNIST dataset, our network has a r_sample score of 0.0 and a r_test score of 1.4815. What this means is that our discriminator classifies every single one of the baseline generator's generated images as fake, which is very impressive of our capsule discriminator. However, while the baseline discriminator classifies all of the real images as real correctly, our capsule discriminator classifies a smaller 67.5% as real, which is worse. Our capsule discriminator is more stingy in terms of classifying images as real as opposed to generated, which could be due to the way we trained our capsule discriminator that caused it to be stricter.
+  </p>
 
   <h3>Experiments</h3>
   <h4>Running with Different Steps</h4>
@@ -156,7 +158,7 @@
 
   <h4>Possible Rotational Advantages</h4>
   <p>
-    Another thing we tried to see if we could isolate the effects of the capsule network as a discriminator over a convolutional network as one was taking the discriminators from both models trained on regular MNIST, and running them against test images from the rotated MNIST dataset, hoping to see if the CapsGan discriminator would classify them as real, whereas the DCGAN discriminator would classify them as fake because the convolutional layers were unable to deal with the rotational invariance. However, this did not work as expected because both discriminators classified all of the images as fake. However, this may be because the rotated images seem to have a sort of blur around the edges, due to the fact that rotation of a $28x28$ image does not cause the images to remain as smooth as they did before. Just from viewing the MNIST dataset regular and rotated, one can spot the difference, so we hypothesize that the discriminator is unable to deal with the rotation for this reason, rather than a lack of rotational invariance.
+    Another thing we tried to see if we could isolate the effects of the capsule network as a discriminator over a convolutional network as one was taking the discriminators from both models trained on regular MNIST, and running them against test images from the rotated MNIST dataset, hoping to see if the CapsGan discriminator would classify them as real, whereas the DCGAN discriminator would classify them as fake because the convolutional layers were unable to deal with the rotational invariance. However, this did not work as expected because both discriminators classified all of the images as fake. However, this may be because the rotated images seem to have a sort of blur around the edges, due to the fact that rotation of a 28x28 image does not cause the images to remain as smooth as they did before. Just from viewing the MNIST dataset regular and rotated, one can spot the difference, so we hypothesize that the discriminator is unable to deal with the rotation for this reason, rather than a lack of rotational invariance.
   </p>
 
   <h3>Visualization</h3>
