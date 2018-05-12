@@ -215,7 +215,7 @@
   <h4>Quantitative</h4>
   <p>We also evaluated the strength of our GAN with the Generative Adversarial Metric proposed by Im et. al.
     <dt-cite key="ganmetric"></dt-cite>
-    On the regular MNIST dataset, our network has a r_sample score of 0.0 and a r_test score of 1.4815. What this means is that our discriminator classifies every single one of the baseline generator's generated images as fake, which is very impressive of our capsule discriminator. However, while the baseline discriminator classifies all of the real images as real correctly, our capsule discriminator classifies a smaller 67.5% as real, which is worse. Our capsule discriminator is more stingy in terms of classifying images as real as opposed to generated, which could be due to the way we trained our capsule discriminator that caused it to be stricter.
+    On the regular MNIST dataset, our network has an r_samples score of 0.0 and an r_test score of 1.4815. What this means is that our discriminator classifies every single one of the baseline generator's generated images as fake, which is very impressive of our capsule discriminator. However, while the baseline discriminator classifies all of the real images as real correctly, our capsule discriminator classifies a smaller 67.5% as real, which is worse. Our capsule discriminator is more stingy in terms of classifying images as real as opposed to generated, which could be due to the way we trained our capsule discriminator that caused it to be stricter.
   </p>
 
   <h3>Experiments</h3>
@@ -341,6 +341,16 @@ Doing this for each pair of successive images yields a clear picture of which co
 </figure >
 <br>
 <p>Overall, analyzing the capsule network shows that the layers are learning rich representations of the MNIST digits, and one which would not be expected from a purely convoutional network. These nuanced representations guide the discriminator's actions, and as we saw above, are passed on to the generator's representation through the backpropagation process.
+</p>
+
+<h3>Tools</h3>
+<p>
+The framework we used for this was PyTorch. We debated using TensorFlow, but were all impressed by the flexibility and ease of use of PyTorch from the assignments, and after doing a quick survey of DCGAN's and CapsuleNet's in both, decided there were plenty of examples using each framework, and settled on PyTorch. We ran our models on EC2 instances because of the extensive memory and time it takes preventing us from being able to feasibly train the models locally.
+</p>
+
+<h3>Lessons Learned</h3>
+<p>
+There are many lessons we learned throughout the process of training these models. One big one that is well-known to be a major GAN problem is that of mode collapse. In some of the models we tried, depending on the seeding and initialization, we would end up with generative models that suffered from mode collapse, where they would output the same image every time. We therefore came to the conclusion that the seeding and initialization with which we started each training model made a huge difference in terms of the quality of our models. Unfortunately, this randomness is something that is hard to control for. We also realized that deconvolutions sometimes caused a strange checkerboard effect that is apparent in the initial training epochs in many of our models. This could be due to the dimensions in which our deconvolutions scaled up from the vector taken from the latent space. Additionally, we also learned that successful architectures do not necessarily work across datasets, as we tried to extend our model to more than just MNIST variations, but found that the generative models and architectures we selected for MNIST no longer worked as well for the different types of images.
 </p>
 
 <br><br><br><br><br><br><br><br><br><br>
