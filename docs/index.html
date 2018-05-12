@@ -353,18 +353,20 @@ Doing this for each pair of successive images yields a clear picture of which co
 
 <h3>Tools</h3>
 <p>
-The framework we used for this was PyTorch. We debated using TensorFlow, but were all impressed by the flexibility and ease of use of PyTorch from the assignments, and after doing a quick survey of DCGAN's and CapsuleNet's in both, decided there were plenty of examples using each framework, and settled on PyTorch. We ran our models on EC2 instances because of the extensive memory and time it takes preventing us from being able to feasibly train the models locally.
+The framework we used for this project was PyTorch. We debated using TensorFlow, but were all impressed by the flexibility and ease of use of PyTorch from the assignments, as well as its ability to easily print and manipulate tensor values. After doing a quick survey of DCGAN and CapsuleNet implementations in both, we decided there were sufficient examples using each framework, and settled on PyTorch. We ran our models on EC2 instances because of the extensive memory and time it takes preventing us from being able to feasibly train the models locally. On a p2.xlarge instance, training took approximately 10 hours. 
 </p>
 
 <h3>Lessons Learned</h3>
 <p>
-There are many lessons we learned throughout the process of training these models. One big one that is well-known to be a major GAN problem is that of mode collapse. In some of the models we tried, depending on the seeding and initialization, we would end up with generative models that suffered from mode collapse, where they would output the same image every time. We therefore came to the conclusion that the seeding and initialization with which we started each training model made a huge difference in terms of the quality of our models. Unfortunately, this randomness is something that is hard to control for. We also realized that deconvolutions sometimes caused a strange checkerboard effect that is apparent in the initial training epochs in many of our models. This could be due to the dimensions in which our deconvolutions scaled up from the vector taken from the latent space. Additionally, we also learned that successful architectures do not necessarily work across datasets, as we tried to extend our model to more than just MNIST variations, but found that the generative models and architectures we selected for MNIST no longer worked as well for the different types of images.
+There are many lessons we learned throughout the process of training these models. One big one that is well-known to be a major GAN problem is mode collapse. In some of the models we tried, depending on the seeding and initialization, we would end up with generative models that suffered from mode collapse, in that they would output the same image regardless of the input. We therefore came to the conclusion that the seeding and initialization with which we started each training model made a huge difference in terms of the quality of our models. Unfortunately, this randomness is something that is hard to control, but fortunately, it occured in only a fraction of our runs.
 </p>
-
+<p>
+We also realized that deconvolutions sometimes caused a strange checkerboard effect that is apparent in the initial training epochs in many of our models. This is due to the dimensions in which our deconvolutions scaled up from the vector taken from the latent space; if the stride is not a factor of the kernel size, then the deconvolutions will overlap in such a way that certain neurons receive more input than others. However, it was interesting to note that, even when fully trained and appearing to work well, the DCGAN generator would still periodically map random inputs to a checkerboard image (see visualizations section), indicating a more pervasive underlying learning problem.
+</p>
+<p>
+Above all, it was fascinating to see how using the capsule network in the discriminator impacted the representation of both sides of the network. In passing only gradients and classifications, the capsule discriminator was still able to help the generator learn a data distribution to which a DCGAN never would have arrived. For the MNIST family, that was enough to produce good looking numbers. But we are sure that there are other problems for which power of that representational nuance would be more notably expressed.
+</p>
 <br><br><br><br><br><br><br><br><br><br>
-
-<h4> More visualizations </h4>
-
 
 </dt-article>
 
