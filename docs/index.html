@@ -13,7 +13,7 @@
   authors:
   - Kevin Jiao: https://kevinjiao.me
   - Pasha Minkovsky: http://google.com
-  - Franklin Rice: http://google.com
+  - Franklin Rice: http://www.linkedin.com/in/franklinrice/
   - Angelina Wang: http://google.com
   affiliations:
   - UC Berkeley: https://eecs.berkeley.edu/
@@ -61,7 +61,12 @@
     is believed to be more important.
     <figure>
       <img src="capsnet-diagram.png">
-      <figcaption>Capsule network visualization</figcaption>
+      <figcaption>Visualization of how capsule networks represent entity-level information. In this case, the arrow direction represents the rotation of the shape (generally some entity parameter) and the magnitude (max 1) represents the strength of the prediction at that particular location</figcaption>
+    </figure>
+    <figure>
+      <img src="capsule_net_architecture.png">
+      <figcaption> The MNSIT capsule network consists of a convolutional layer, followed by a 8 x 1152 "PrimaryCaps" layer (which routes to itself three times), followed by a single  16 x 10 "BinaryCaps" layer, where each row corresponds to one of the 10 digits, and each column to some entity feature.
+      </figcaption>
     </figure>
   </p>
   <h3>Our approach</h3>
@@ -70,25 +75,41 @@
     We chose to investigate the nuances of capsule representations by focusing on various variations of the MNIST dataset. These
     included:
     <ol>
-      <li>Original MNIST, which we obtained through the built-in PyTorch TorchVision datasets
-        <figure>
-          <img src="mnist_real.png">
-          <figcaption>MNIST examples</figcaption>
-        </figure>
+      <div class="row botmar">
+        <li>
+          <div class="col">
+            <figure class="insert-right notop big">
+              <img src="mnist_real.png" class="right-img">
+              <figcaption>MNIST examples</figcaption>
+            </figure>
+            Original MNIST, which we obtained through the built-in PyTorch TorchVision dataloader.
+        <!-- <br><br><br><br><br><br> -->
+      </div>
+    </div>
       </li>
-      <li> Extended MNIST (EMNIST) which contains both letters and numbers, each of which is rotated randomly, and for which we
-        also utilized the TorchVision datasets;
-        <figure>
-          <img src="emnist_real.png">
-          <figcaption>EMNIST examples</figcaption>
-        </figure>
+        <div class="row botmar">
+          <li>
+          <div class="col">
+            <figure class="insert-right notop big">
+              <img src="emnist_real.png" class="right-img">
+              <figcaption>EMNIST examples</figcaption>
+            </figure>
+            Extended MNIST (EMNIST) which contains both letters and numbers, each of which is rotated randomly, and for which we
+            also utilized the TorchVision dataloader.
+          </div>
+        </div>
       </li>
-      <li> Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees
-        <figure>
-          <img src="mnist_rot_real.png">
+      <div class="row botmar">
+      <li> 
+        <div class="col">
+        <figure class="insert-right notop big">
+          <img src="mnist_rot_real.png" class="right-img">
           <figcaption>Rotated MNIST examples</figcaption>
         </figure>
+        Rotated MNIST, which we created ourselves by applying a random rotation between 0 and 360 degrees to the MNNIST dataset. Note that the rotation process did introduce a border artifact to the images
       </li>
+    </div>
+  </div>
     </ol>
     <p>
       Our hope was that, by looking more deeply into these similar datasets, we would be able to discern more detailed learning
@@ -115,27 +136,69 @@
     real or generated. The squash activation at the end ensures the output can be used as a probability measure, and thus
     our discriminator could be plugged into our GAN model.</p>
 
+    </figure>
+    <figure>
+      <img src="our_model_no_fc.png">
+      <figcaption>Our first model, which reduced the DigitCaps layer to a scalar output, which was then used for classification.
+      </figcaption>
+    </figure>
+    <figure>
+      <img src="our_model.png">
+      <figcaption> Our second model, which replaces the 16 x 10 DigitCaps layer with a 16 x 1 BinaryCaps layer followed by a single fully connected layer, the output of which is sigmoided and used for classification.
+      </figcaption>
+    </figure>
+
   <h3>Results</h3>
-  <p>Our trained generator was able to generate sufficiently similar images for all three of our datasets.
-    <figure>
-      <img src="mnist-results.png">
-      <figcaption>MNIST generated samples</figcaption>
+  <p>Our trained generator was able to generate good looking images for all three of our datasets. Note that the borders on the rotated mnist digits resulting from the rotation were actually learned as well, and are not a result of poor generation in the rightmost image. 
+    <div class="banner">
+      <img src="mnist-results.png" class="inline-img margin-sides">
+      <img src="emnist-results.png" class="inline-img margin-sides">
+      <img src="mnist-rot-results.png" class="inline-img margin-sides">
+    </div>
+    <figure class="caponly">
+      <figcaption>
+        Sample generated by our CapsGAN for MNIST (left), EMNIST (center), and Rotated MNIST (right)
+      </figcaption>
     </figure>
-    <figure>
-      <img src="emnist-results.png">
-      <figcaption>EMNIST generated samples</figcaption>
-    </figure>
-    <figure>
-      <img src="mnist-rot-results.png">
-      <figcaption>Rotated MNIST generated samples</figcaption>
-    </figure>
+
+      <!-- <figure>
+        <img src="mnist-results.png">
+        <figcaption>MNIST generated samples</figcaption>
+      </figure>
+      <figure>
+        <img src="emnist-results.png">
+        <figcaption>EMNIST generated samples</figcaption>
+      </figure>
+      <figure>
+        <img src="mnist-rot-results.png">
+        <figcaption>Rotated MNIST generated samples</figcaption>
+      </figure> -->
+    </div>
   </p>
   <p>We also evaluated the strength of our GAN with the Generative Adversarial Metric proposed by Im et. al.
     <dt-cite key="ganmetric"></dt-cite>
     Our network has a r_sample score of TODO and a r_test score of TODO, compared to the baseline score of.
   </p>
   <h3>Training</h3>
+
   <figure>
+    <img src="mnist+emnist_train_hist.png">
+    <figcaption>
+      The Discriminator and Generator training losses for training on MNIST (left) and E(xtended)MNIST (right)
+    </figcaption>
+  </figure>
+
+<!--   <div class="banner">
+    <img src="mnist_train_hist.png" class="inline-img margin-sides">
+    <img src="emnist_train_hist.png" class="inline-img margin-sides">
+  </div>
+  <figure class="capsonly">
+    <figcaption>
+      The Discriminator and Generator training losses for training on MNIST (left) and E(xtended)MNIST (right)
+    </figcaption>
+  </figure> -->
+
+<!--   <figure>
     <img src="mnist_train_hist.png">
     <figcaption>MNIST training loss history</figcaption>
   </figure>
@@ -146,20 +209,25 @@
   <figure>
     <img src="mnist_rot_train_hist.png">
     <figcaption>Rotated MNIST training loss history</figcaption>
+  </figure> -->
+
+  <figure>
+    <img src="loss+imgs.png">
+    <figcaption>The loss of our Capsule discriminator and convolutional generator plotted alongside the generated images at the time</figcaption>
   </figure>
 
 
-  <h3>Visualization</h3>
+  <h3>Visualization -- Generator</h3>
+  <figure class="insert-left">
+    <img src="4.gif">
+    <figcaption>Notice the left vertical portion changing</figcaption>
+  </figure>
   <p>
   By perturbing a particular index of our latent vector, we were able to visualize how values at that index affected the output image.
   The following gif's were created from the generator output of a fixed latent vector, with one index changing by a fixed number.
   
   In this example, we discovered a scalar that corresponded to the length of the left leg of a 4.
 </p>
-  <figure class="insert-left">
-      <img src="4.gif">
-      <figcaption>Notice the left vertical portion changing</figcaption>
-    </figure>
 
   <p>This next one has an affect on how sharp the corners of a 5 are.</p>
 </p>
@@ -189,7 +257,8 @@
 <p> All of our unrolled GIFs can be viewed <a href="capsgan_gen_array_2.png">here</a> for CapsGAN, and <a href="dcgan_gen_array.png">here</a> for DCGAN. 20 of the 100 input dimensions are represented in these disgrams.
 </p>
 
-<h4>Synthetic Dataset</h4>
+<h3>Visualization -- Discriminator</h3>
+
 <p>We also created a little dataset of our own to see if we could isolate the features within the capsule discriminator that represent certain parameters of the input digit, like rotation, skew, scale, translation, stroke thickness, and stretch. For example, we created 7 different images of the same 4, but with various degrees of rotation.
 </p>
 <p>
@@ -221,7 +290,7 @@ Then, to find which components map to which features, we visualized the PrimaryC
 </p>
 <div class="banner">
   <img src="4_diff_example_96.png" class="inline-img">
-  <img src="4_diff_example_16.png" class="inline-img" style="margin-top: 140px; margin-left: 20px;">
+  <img src="4_diff_example_16.png" class="inline-img" style="margin-top: 90px; margin-left: 20px;">
 </div>
 <figure class="caponly"><figcaption>The difference between the first two activations in the "rotated 4" series, with lesser values zero'd. The left image corresponds to the 8 x 1152 "PrimaryCaps" layer, while the right image comes from the 16x1 "DigitCaps" layer.</figcaption></figure>
 
